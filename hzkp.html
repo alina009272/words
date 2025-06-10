@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉字翻转卡片</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                        neutral: '#1F2937',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-flip {
+                perspective: 1000px;
+                transform-style: preserve-3d;
+            }
+            .card-front, .card-back {
+                backface-visibility: hidden;
+                transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .card-back {
+                transform: rotateY(180deg);
+            }
+            .card-flipped .card-front {
+                transform: rotateY(180deg);
+            }
+            .card-flipped .card-back {
+                transform: rotateY(0deg);
+            }
+            .character-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+            }
+            .character-text {
+                font-size: clamp(2rem, 6vw, 4rem);
+                font-weight: bold;
+                margin-bottom: 0.5rem;
+            }
+            .word-text {
+                font-size: clamp(1rem, 3vw, 1.5rem);
+                font-weight: medium;
+                opacity: 0.9;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-12 max-w-7xl">
+        <header class="text-center mb-12">
+            <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-neutral mb-4">汉字翻转卡片</h1>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">点击卡片翻转，探索汉字与词语</p>
+        </header>
+
+        <main id="card-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+            <!-- 卡片将通过 JavaScript 动态生成 -->
+        </main>
+
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <p>点击任意卡片查看汉字和相关词语。再次点击可翻转回来。</p>
+        </footer>
+    </div>
+
+    <script>
+        // 汉字与词语数据
+        const characterData = [
+            { char: '居', word: '居住' },
+            { char: '哥', word: '哥哥' },
+            { char: '奇', word: '奇怪' },
+            { char: '京', word: '北京' },
+            { char: '凉', word: '凉爽' },
+            { char: '亮', word: '明亮' },
+            { char: '古', word: '古代' },
+            { char: '舌', word: '舌头' },
+            { char: '台', word: '台湾' },
+            { char: '点', word: '点心' },
+            { char: '各', word: '各个' },
+            { char: '名', word: '名字' },
+            { char: '江', word: '江河' },
+            { char: '河', word: '河流' },
+            { char: '池', word: '池塘' },
+            { char: '海', word: '海洋' },
+            { char: '活', word: '活动' },
+            { char: '法', word: '法律' },
+            { char: '王', word: '国王' },
+            { char: '主', word: '主人' },
+            { char: '住', word: '住房' },
+            { char: '玉', word: '玉石' },
+            { char: '玩', word: '玩耍' },
+            { char: '现', word: '现在' },
+            { char: '元', word: '元旦' },
+            { char: '角', word: '角落' },
+            { char: '分', word: '分数' },
+            { char: '次', word: '次数' },
+            { char: '条', word: '条件' },
+            { char: '朵', word: '花朵' },
+            { char: '七', word: '七月' },
+            { char: '百', word: '百姓' },
+            { char: '千', word: '千万' },
+            { char: '万', word: '万岁' },
+            { char: '单', word: '单独' },
+            { char: '双', word: '双手' },
+            { char: '招', word: '招呼' },
+            { char: '捉', word: '捉弄' },
+            { char: '拍', word: '拍照' },
+            { char: '找', word: '寻找' },
+            { char: '跑', word: '跑步' },
+            { char: '跟', word: '跟随' },
+            { char: '头', word: '头发' },
+            { char: '买', word: '买卖' },
+            { char: '卖', word: '卖出' },
+            { char: '加', word: '加法' },
+            { char: '呢', word: '呢子' },
+            { char: '吗', word: '吗啡' },
+            { char: '常', word: '经常' },
+            { char: '吹', word: '吹风' },
+            { char: '知', word: '知道' },
+            { char: '很', word: '很多' },
+            { char: '行', word: '行走' },
+            { char: '往', word: '来往' },
+            { char: '使', word: '使用' },
+            { char: '但', word: '但是' },
+            { char: '作', word: '作业' },
+            { char: '思', word: '思考' },
+            { char: '您', word: '您好' },
+            { char: '意', word: '意思' },
+            { char: '想', word: '想念' },
+            { char: '总', word: '总是' },
+            { char: '感', word: '感觉' },
+            { char: '大地', word: '地球' },
+            { char: '天空', word: '天气' },
+            { char: '躺', word: '躺下' },
+            { char: '温暖', word: '温和' },
+            { char: '哭', word: '哭泣' },
+            { char: '笑', word: '笑容' },
+            { char: '爷爷', word: '祖父' },
+            { char: '小猫', word: '猫咪' },
+            { char: '小狗', word: '狗狗' },
+            { char: '小猪', word: '猪崽' },
+            { char: '李', word: '李广' },
+            { char: '采', word: '采蘑菇' },
+            { char: '样', word: '榜样' },
+            { char: '机', word: '机器人' },
+            { char: '校', word: '学校' },
+            { char: '相', word: '相似' },
+        ];
+
+        // 表情数组
+        const emojis = ['😊', '😎', '🤩', '🥳', '😜', '🤗', '😏', '😛', '🤔', '🥰'];
+
+        // 生成随机颜色
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        // 生成随机渐变色
+        function getRandomGradient() {
+            const color1 = getRandomColor();
+            const color2 = getRandomColor();
+            return `linear-gradient(to bottom right, ${color1}, ${color2})`;
+        }
+
+        // 创建卡片元素
+        function createCard(data) {
+            const cardContainer = document.createElement('div');
+            cardContainer.className = 'card-flip cursor-pointer';
+            cardContainer.onclick = function() {
+                this.classList.toggle('card-flipped');
+            };
+
+            // 随机选取一个表情
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+
+            // 卡片内容
+            cardContainer.innerHTML = `
+                <div class="relative w-full h-40 sm:h-52 md:h-60 rounded-xl shadow-xl overflow-hidden">
+                    <!-- 卡片正面 -->
+                    <div class="card-front absolute inset-0 flex items-center justify-center">
+                        <div class="text-white text-[clamp(2rem,6vw,4rem)] font-bold">${randomEmoji}</div>
+                    </div>
+                    <!-- 卡片背面 -->
+                    <div class="card-back absolute inset-0 flex items-center justify-center">
+                        <div class="character-container text-white">
+                            <div class="character-text">${data.char}</div>
+                            <div class="word-text">${data.word}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2 text-center">
+                    <h3 class="text-sm sm:text-base font-semibold text-neutral">卡片 ${characterData.indexOf(data) + 1}</h3>
+                    <p class="text-xs text-gray-600">点击翻转查看汉字和词语</p>
+                </div>
+            `;
+
+            // 为卡片添加随机颜色
+            const front = cardContainer.querySelector('.card-front');
+            const back = cardContainer.querySelector('.card-back');
+            
+            let frontGradient, backGradient;
+            do {
+                frontGradient = getRandomGradient();
+                backGradient = getRandomGradient();
+            } while (frontGradient === backGradient);
+            
+            front.style.background = frontGradient;
+            back.style.background = backGradient;
+
+            return cardContainer;
+        }
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            const cardContainer = document.getElementById('card-container');
+            
+            // 为每个汉字创建卡片
+            characterData.forEach(data => {
+                const card = createCard(data);
+                cardContainer.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉字翻转卡片</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                        neutral: '#1F2937',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-flip {
+                perspective: 1000px;
+                transform-style: preserve-3d;
+            }
+            .card-front, .card-back {
+                backface-visibility: hidden;
+                transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .card-back {
+                transform: rotateY(180deg);
+            }
+            .card-flipped .card-front {
+                transform: rotateY(180deg);
+            }
+            .card-flipped .card-back {
+                transform: rotateY(0deg);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-12 max-w-7xl">
+        <header class="text-center mb-12">
+            <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-neutral mb-4">汉字翻转卡片</h1>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">点击卡片翻转，探索隐藏的汉字</p>
+        </header>
+
+        <main id="card-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+            <!-- 卡片将通过 JavaScript 动态生成 -->
+        </main>
+
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <p>点击任意卡片查看隐藏的汉字。再次点击可翻转回来。</p>
+        </footer>
+    </div>
+
+    <script>
+        // 所有汉字数据
+        const characters = [
+            '居', '哥', '奇','京', '凉', '亮', '古', '舌', '台', '点', '各', '名', '江', 
+            '河', '池', '海', '活', '法', '王', '主', '住', '玉', '玩', 
+            '现', '元', '角', '分', '次', '条', '朵', '七', '百', '千', 
+            '万', '单', '双', '招', '捉', '拍', '找', '跑', '跟', '头', 
+            '买', '卖', '加', '呢', '吗', '常', '吹', '知', '很', '行', 
+            '往', '使', '但', '作', '思', '您', '意', '想', '总', '感', 
+            '大地', '天空', '躺', '温暖', '哭', '笑', '爷爷', '小猫', '小狗', '小猪'
+        ];
+
+        // 生成随机颜色
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        // 生成随机渐变色
+        function getRandomGradient() {
+            const color1 = getRandomColor();
+            const color2 = getRandomColor();
+            return `linear-gradient(to bottom right, ${color1}, ${color2})`;
+        }
+
+        // 创建卡片元素
+        function createCard(char) {
+            const cardContainer = document.createElement('div');
+            cardContainer.className = 'card-flip cursor-pointer';
+            cardContainer.onclick = function() {
+                this.classList.toggle('card-flipped');
+            };
+
+            // 卡片内容
+            cardContainer.innerHTML = `
+                <div class="relative w-full h-40 sm:h-52 md:h-60 rounded-xl shadow-xl overflow-hidden">
+                    <!-- 卡片正面 -->
+                    <div class="card-front absolute inset-0 flex items-center justify-center">
+                        <div class="text-white text-[clamp(2rem,6vw,4rem)] font-bold">?</div>
+                    </div>
+                    <!-- 卡片背面 -->
+                    <div class="card-back absolute inset-0 flex items-center justify-center">
+                        <div class="text-white text-[clamp(2rem,6vw,4rem)] font-bold">${char}</div>
+                    </div>
+                </div>
+                <div class="mt-2 text-center">
+                    <h3 class="text-sm sm:text-base font-semibold text-neutral">卡片 ${characters.indexOf(char) + 1}</h3>
+                    <p class="text-xs text-gray-600">点击翻转查看汉字</p>
+                </div>
+            `;
+
+            // 为卡片添加随机颜色
+            const front = cardContainer.querySelector('.card-front');
+            const back = cardContainer.querySelector('.card-back');
+            
+            let frontGradient, backGradient;
+            do {
+                frontGradient = getRandomGradient();
+                backGradient = getRandomGradient();
+            } while (frontGradient === backGradient);
+            
+            front.style.background = frontGradient;
+            back.style.background = backGradient;
+
+            return cardContainer;
+        }
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            const cardContainer = document.getElementById('card-container');
+            
+            // 为每个汉字创建卡片
+            characters.forEach(char => {
+                const card = createCard(char);
+                cardContainer.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html>
